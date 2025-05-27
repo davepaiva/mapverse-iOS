@@ -1,0 +1,153 @@
+### Cursor Rules for Swift & SwiftUI Development
+I am new to native iOS development , but I have 4+ years of experience building cross platform apps using React Native.
+You are an expert iOS developer using Swift and SwiftUI. Always write maintainable, clean, and efficient code. Focus on the latest Swift (August/September 2024) documentation and features. Your descriptions should be concise. Do not remove any comments.
+
+---
+
+## Project Structure
+
+- **Main Folder**: Contains a `Sources` folder.
+  - `App/` → Main app entry point
+  - `Views/` → Split into `Home/` and `Profile/`, each with `ViewModels/`
+  - `Shared/` → Reusable components, custom modifiers
+  - `Models/` → Data models
+  - `ViewModels/` → Business logic
+  - `Services/` →
+    - `Network/` → API handling
+    - `Persistence/` → Local storage solutions
+  - `Utilities/` → Extensions, constants, helpers
+  - `Resources/` →
+    - `Assets/` → Images, colors
+    - `Localization/` → Localized strings
+    - `Fonts/` → Custom fonts
+  - `Tests/` →
+    - `UnitTests/` → Logic validation
+    - `UITests/` → UI automation tests
+    
+- When creating new files , please mention where the file should be placed
+
+---
+
+## Code Structure & Best Practices
+
+- Swift’s latest features & protocol-oriented programming
+- MVVM architecture with SwiftUI
+- Prefer `structs` over `classes`
+- Follow Apple's Human Interface Guidelines
+- use environment variables for API keysand other sensitive information, data that will defer in production and development environemnts
+
+---
+
+## Naming Conventions
+
+- **camelCase** → Variables, functions (`fetchData()`)
+- **PascalCase** → Types (`UserProfileView`)
+- **Boolean Naming** → Use `is`, `has`, `should` (`isLoggedIn`)
+- **Descriptive, Apple-style naming**
+
+---
+
+## Swift Best Practices
+
+- Strong type system, proper optional handling
+- **Concurrency** → Use `async/await`
+- **Error Handling** → Prefer `Result<T, Error>`
+- **State Management** → Use `@State`, `@StateObject`, `@ObservedObject`, `@EnvironmentObject`
+- **Immutability** → Prefer `let` over `var`
+- **Code Reuse** → Use protocol extensions
+
+---
+
+## UI Development
+
+- **SwiftUI first**, UIKit when necessary
+- **Native Components** → Use `List`, `NavigationStack`, `TabView`, `SF Symbols`
+- **Layout** → Use `VStack`, `HStack`, `ZStack`, `Spacer`, `Padding`
+- **Lazy Loading** → `LazyVGrid`, `LazyHGrid` for performance
+- **Dynamic & Adaptive** → Support **Dark Mode, Dynamic Type, SafeArea**
+- **Interaction** → Gestures (`swipes, long presses`), haptics, animations
+
+---
+
+## Performance Optimization
+
+- **Profile with Instruments**
+- **Lazy Load** views & images
+- **Optimize API Calls** (batch requests, caching)
+- **Background task handling**
+- **Efficient state & memory management**
+
+---
+
+## Data & State Management
+
+- **CoreData** → For complex persistence
+- **UserDefaults** → For lightweight storage
+- **Combine** → For reactive programming
+- **Dependency Injection** → Clean architecture
+- **State Restoration** → Preserve user sessions
+
+---
+
+## Security Best Practices
+
+- Encrypt sensitive data
+- Secure **Keychain** usage
+- **Certificate pinning** for network security
+- **Biometric authentication** (Face ID, Touch ID)
+- **App Transport Security (ATS)**
+- **Sanitize & validate user input**
+
+---
+
+## Testing & Quality Assurance
+
+- **Unit Testing** → `XCTest` for logic
+- **UI Testing** → `XCUITest` for flows
+- **Performance Testing** → Profiling common tasks
+- **Edge Case Handling** → Robust error scenarios
+- **Accessibility Testing** → Support VoiceOver & Dynamic Type
+
+---
+
+## Essential Features
+
+- **Deep Linking**
+- **Push Notifications**
+- **Background Task Handling**
+- **Localization** → Multi-language support
+- **Analytics & Logging**
+- **Error Handling & Crash Reporting**
+
+---
+
+## Development Workflow
+
+- **Use SwiftUI previews** for real-time UI testing
+- **Git Branching Strategy** → Feature-based branches
+- **Code Reviews** → Ensure consistency & quality
+- **CI/CD Pipeline** → Automate builds & testing
+- **Documentation** → Maintain clarity in codebase
+- **Maintain high test coverage**
+
+---
+
+## App Store Compliance
+
+- **Privacy Descriptions** → Data usage transparency
+- **App Capabilities** → List required permissions
+- **In-App Purchases** → Follow Apple’s guidelines
+- **App Review Readiness** → Ensure compliance with latest policies
+- **App Thinning & Size Optimization**
+- **Code Signing & Provisioning**
+
+---
+
+## Custom Rules
+
+- Only use self. where you really need it, like in closures, initializers, etc.
+---
+
+## Final Note
+
+Follow Apple’s official documentation for detailed implementation guidance.
