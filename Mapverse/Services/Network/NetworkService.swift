@@ -112,6 +112,14 @@ class NetworkService {
         return encoder
     }
 
+    private func getDefaultHeaders() -> [String: String] {
+        return [
+            "Accept": "application/xml",
+            "User-Agent": "Mapverse/1.0 (https://github.com/yourusername/mapverse; your@email.com)",
+            "Accept-Language": "en-US,en;q=0.9"
+        ]
+    }
+
     func get<T: Decodable>(
         endpoint: String,
         parameters: RequestParameters
@@ -156,7 +164,11 @@ class NetworkService {
         let url = try buildAPIEndpoint(endpoint: endpoint, parameters: parameters)
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
-        request.setValue("aplication/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add default headers
+        for (key, value) in getDefaultHeaders() {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
         
         do{
             let (data, response) = try await URLSession.shared.data(for: request)
@@ -168,7 +180,6 @@ class NetworkService {
         }catch let error as NetworkError{
             throw error
         }
-        
     }
 
    // Mostly used for POST requests
@@ -182,7 +193,15 @@ class NetworkService {
        let url = try buildAPIEndpoint(endpoint: endpoint, parameters: parameters)
        var request = URLRequest(url: url)
        request.httpMethod = method.rawValue
+       
+       // Add default headers
+       for (key, value) in getDefaultHeaders() {
+           request.setValue(value, forHTTPHeaderField: key)
+       }
+       
+       // Add content type header
        request.setValue(requestContentType.rawValue, forHTTPHeaderField: "Content-Type")
+       
        do{
            switch requestContentType{
            case .JSON:
