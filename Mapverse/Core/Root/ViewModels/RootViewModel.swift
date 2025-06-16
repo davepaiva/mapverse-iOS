@@ -18,10 +18,12 @@ class RootViewModel: ObservableObject {
     }
     
     private func setupSubscribers() {
-        AuthService.shared.$currentUserAccessToken.sink{ [weak self] accessToken in
-            guard let self = self else { return }
-            self.userAccessToken = accessToken
-        }.store(in: &cancellables)
+        AuthService.shared.$currentUserAccessToken
+            .sink { [weak self] accessToken in
+                guard let self = self else { return }
+                self.userAccessToken = accessToken
+            }
+            .store(in: &cancellables)
     }
     
 }

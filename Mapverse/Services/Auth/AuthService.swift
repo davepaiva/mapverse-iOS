@@ -1,5 +1,6 @@
 import Foundation
 import KeychainSwift
+import Combine
 
 struct AuthConfig {
     @EnvironmentKey("OSM_CLIENT_ID")
@@ -61,7 +62,8 @@ class AuthService {
     let keychain = KeychainSwift()
     
     init(){
-        keychain.delete(KeychainKeys.OsmUserAccessToken.rawValue)
+        // used for testing auth:
+    //    keychain.delete(KeychainKeys.OsmUserAccessToken.rawValue)
         currentUserAccessToken = keychain.get(KeychainKeys.OsmUserAccessToken.rawValue)
        
     }
@@ -77,16 +79,15 @@ class AuthService {
         return components?.url
     }
     
-    
-    
-    
     func exchangeCodeForToken(_ code: String) async throws {
         let response: ExchangeCodeForAccessTokenResponseBody = try await NetworkService.shared.post(endpoint: "/oauth2/token", body: ExchangeCodeForAccessTokenRequestBody(code: code), requestContentType: .URLEncoded)
         guard let token  = response.accessToken else {
             throw NetworkError.customError(message: "OSM access token could not be retreived")
         }
         keychain.set(token, forKey: KeychainKeys.OsmUserAccessToken.rawValue)
-        currentUserAccessToken = token
+        await MainActor.run {
+            currentUserAccessToken = token
+        }
         print("saved token to keychain")
     }
 }
