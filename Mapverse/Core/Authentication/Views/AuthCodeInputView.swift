@@ -22,9 +22,8 @@ struct AuthCodeInputView: View{
                     }
                 }) {
                     Text("Sumbit")
-                        .symbolEffect(.bounce, value: viewmodel.isAuthenticating)
                 }
-                .modifier(ButtonViewModifier(isLoading: viewmodel.isAuthenticating))
+                .modifier(ButtonViewModifier(isLoading: viewmodel.isCodeExchangeLoading))
             }
         }
         .padding()
