@@ -75,7 +75,7 @@ struct Webview: UIViewRepresentable{
 #Preview {
     Webview(
         isLoading: .constant(false),
-        currentURL: .constant(URL(string: "https://google.com")),
+        currentURL: .constant(URL(string: "https://openstreetmaps.org")),
         javascriptToInject: """
             // Example JavaScript that modifies the page
             document.body.style.backgroundColor = '#f0f0f0';
