@@ -1,10 +1,14 @@
 import SwiftUI
 import MapLibre
+import CoreLocation
 
 struct MapView: UIViewRepresentable {
+    @StateObject private var viewModel =  MapViewModel()
     
     func makeUIView(context: Context) -> MLNMapView {
         let mapView = MLNMapView()
+        
+        viewModel.checkIfLocationServicesEnabled()
         
         // Try custom OpenStreetMap style using the temporary file approach
         if let customStyleURL = createOpenStreetMapStyle() {
@@ -21,14 +25,16 @@ struct MapView: UIViewRepresentable {
             pitch: 0, // Start with 0 pitch, can be adjusted
             heading: 0
         )
-        mapView.setCamera(camera, animated: false)
+        mapView.setCamera(camera, animated: true)
+        mapView.showsUserLocation = true
+        mapView.userTrackingMode = .followWithHeading
         
         return mapView
     }
     
     func updateUIView(_ uiView: MLNMapView, context: Context) {
-        
     }
+    
     
     private func createOpenStreetMapStyle() -> URL? {
         // if we used regular we based URLs I get a blank black screen with MapLibre logo. Therefore:
