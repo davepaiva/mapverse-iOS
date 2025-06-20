@@ -119,6 +119,7 @@
 			packageReferences = (
 				0FA5CC9E2DE0A7C6006D63D9 /* XCRemoteSwiftPackageReference "keychain-swift" */,
 				0F10BB9F2DFFEE3E0034CC40 /* XCRemoteSwiftPackageReference "maplibre-gl-native-distribution" */,
+				0F0899782E05824D00758007 /* XCRemoteSwiftPackageReference "turf-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0F0828742D9EAC9C00E1A57C /* Products */;
@@ -364,6 +365,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		0F0899782E05824D00758007 /* XCRemoteSwiftPackageReference "turf-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mapbox/turf-swift";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		0F10BB9F2DFFEE3E0034CC40 /* XCRemoteSwiftPackageReference "maplibre-gl-native-distribution" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/maplibre/maplibre-gl-native-distribution";

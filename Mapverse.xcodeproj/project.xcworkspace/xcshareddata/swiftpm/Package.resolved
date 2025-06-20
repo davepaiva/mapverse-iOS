@@ -1,5 +1,5 @@
 {
-  "originHash" : "653c63ac06a68551e1a5b5205e207221b56c7676e88dceceeda7abdf085997aa",
+  "originHash" : "dfb23b489669958a188e3e93e7b0547050323fd59b89241ea920e3104adff685",
   "pins" : [
     {
       "identity" : "keychain-swift",
@@ -13,10 +13,19 @@
     {
       "identity" : "maplibre-gl-native-distribution",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/maplibre/maplibre-gl-native-distribution",
+      "location" : "https://github.com/maplibre/maplibre-gl-native-distribution.git",
       "state" : {
         "revision" : "0421942023155bd1c8074438945fbef3a3472a2c",
         "version" : "6.15.0"
+      }
+    },
+    {
+      "identity" : "turf-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mapbox/turf-swift",
+      "state" : {
+        "branch" : "main",
+        "revision" : "84db5899af1beaa506aafcb006fd7759e7d5647d"
       }
     }
   ],

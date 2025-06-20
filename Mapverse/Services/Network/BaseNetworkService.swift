@@ -94,11 +94,13 @@ extension FormURLParameters{
     }
 }
 
-class NetworkService {
-    @EnvironmentKey("OSM_BASE_URL")
-    private var BASE_URL:String
+class BaseNetworkService {
+    private var baseURL:String
     
-    static let shared = NetworkService()
+    init(baseURL: String) {
+        self.baseURL = baseURL
+    }
+    
     
     private var decoder: JSONDecoder {
         let decoder = JSONDecoder()
@@ -114,8 +116,7 @@ class NetworkService {
 
     private func getDefaultHeaders() -> [String: String] {
         return [
-            "Accept": "application/xml",
-            "User-Agent": "Mapverse/1.0 (https://github.com/yourusername/mapverse; your@email.com)",
+            "Accept": "*/*",
             "Accept-Language": "en-US,en;q=0.9"
         ]
     }
@@ -137,7 +138,7 @@ class NetworkService {
     }
     
     private func buildAPIEndpoint(endpoint: String, parameters: RequestParameters? = nil) throws -> URL{
-        var urlString = URLComponents(string: "\(BASE_URL)/\(endpoint)")
+        var urlString = URLComponents(string: "\(baseURL)/\(endpoint)")
         if let parameters = parameters {
             urlString?.queryItems = try? parameters.asQueryItems()
         }
@@ -208,7 +209,6 @@ class NetworkService {
                request.httpBody = try encoder.encode(body)
            case .URLEncoded:
                guard let formParameters = body as? FormURLParameters else{
-                   print("here")
                    throw NetworkError.invlaidRequestBody(message: "Body must conform to FormURLParameters for URL-encoded requests")
                }
                let formBody = formParameters.asFormURLEncodedItems()
@@ -220,11 +220,9 @@ class NetworkService {
        do{
            let (data, response) = try await URLSession.shared.data(for: request)
            try checkForAPIErrors(response: response, data: data)
-           dump(data)
            return try decoder.decode(T.self, from: data)
            
        }catch let error as DecodingError{
-           print(error.localizedDescription)
            throw NetworkError.decodingError
        }catch let error as NetworkError{
            throw error

@@ -10,6 +10,8 @@ struct MapView: UIViewRepresentable {
         
         viewModel.checkIfLocationServicesEnabled()
         
+        viewModel.setMapView(mapView)
+        
         // Try custom OpenStreetMap style using the temporary file approach
         if let customStyleURL = createOpenStreetMapStyle() {
             mapView.styleURL = customStyleURL
@@ -28,11 +30,52 @@ struct MapView: UIViewRepresentable {
         mapView.setCamera(camera, animated: true)
         mapView.showsUserLocation = true
         mapView.userTrackingMode = .followWithHeading
+        mapView.zoomLevel = 15
+        mapView.delegate = context.coordinator
         
         return mapView
     }
     
     func updateUIView(_ uiView: MLNMapView, context: Context) {
+        
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, MLNMapViewDelegate {
+        let parent: MapView
+        
+        
+        init(_ parent: MapView) {
+            self.parent = parent
+        }
+        
+        func mapView(_ mapView: MLNMapView, regionDidChangeWith reason: MLNCameraChangeReason, animated: Bool) {
+            let currentZoomLevel = mapView.zoomLevel
+            print("Zoom level changed to: \(currentZoomLevel)")
+            
+            // You can also check for specific zoom level thresholds
+            if currentZoomLevel > 16 {
+                // Show detailed POIs
+                let bounds = MapBounds(
+                    south: mapView.visibleCoordinateBounds.sw.latitude,
+                    west: mapView.visibleCoordinateBounds.sw.longitude,
+                    north: mapView.visibleCoordinateBounds.ne.latitude,
+                    east: mapView.visibleCoordinateBounds.ne.longitude
+                )
+                Task{
+                    print("OSMPOI: Fetching POIs with bounds \(bounds)")
+                    await parent.viewModel.fetchPOI(mapBounds: bounds)
+                }
+                
+            } else if currentZoomLevel < 10 {
+                print("Low zoom level")
+            }
+        }
+        
+        
     }
     
     
