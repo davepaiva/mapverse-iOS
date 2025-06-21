@@ -5,48 +5,51 @@ import CoreLocation
 struct MapView: UIViewRepresentable {
     @StateObject private var viewModel =  MapViewModel()
     
+    
     func makeUIView(context: Context) -> MLNMapView {
         let mapView = MLNMapView()
-        
-        viewModel.checkIfLocationServicesEnabled()
-        
+        configureMapView(mapView)
         viewModel.setMapView(mapView)
-        
-        // Try custom OpenStreetMap style using the temporary file approach
-        if let customStyleURL = createOpenStreetMapStyle() {
-            mapView.styleURL = customStyleURL
-        } else {
-            // Fallback to working demo style
-            mapView.styleURL = URL(string: "https://demotiles.maplibre.org/style.json")
-        }
-        
-        // Set initial camera position (similar to web version)
-        let camera = MLNMapCamera(
-            lookingAtCenter: CLLocationCoordinate2D(latitude: 47.27574, longitude: 11.39085),
-            acrossDistance: 10000, // Approximate distance for zoom level 12
-            pitch: 0, // Start with 0 pitch, can be adjusted
-            heading: 0
-        )
-        mapView.setCamera(camera, animated: true)
-        mapView.showsUserLocation = true
-        mapView.userTrackingMode = .followWithHeading
-        mapView.zoomLevel = 15
         mapView.delegate = context.coordinator
-        
         return mapView
     }
     
     func updateUIView(_ uiView: MLNMapView, context: Context) {
-        
+        // Handle any updates needed when SwiftUI state changes
     }
     
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
     
+    private func configureMapView(_ mapView: MLNMapView) {
+        // Set style
+        if let customStyleURL = MapStyleProvider.createOpenStreetMapStyle() {
+            mapView.styleURL = customStyleURL
+        } else {
+            mapView.styleURL = URL(string: MapConfiguration.fallbackStyleURL)
+        }
+        
+        // Set initial camera position
+        let camera = MLNMapCamera(
+            lookingAtCenter: MapConfiguration.initialLocation,
+            acrossDistance: MapConfiguration.initialDistance,
+            pitch: MapConfiguration.defaultPitch,
+            heading: MapConfiguration.defaultHeading
+        )
+        mapView.setCamera(camera, animated: true)
+        
+        // Configure location and zoom
+        mapView.showsUserLocation = true
+        mapView.userTrackingMode = .followWithHeading
+        mapView.zoomLevel = MapConfiguration.initialZoomLevel
+    }
+}
+
+// MARK: - Coordinator
+extension MapView {
     class Coordinator: NSObject, MLNMapViewDelegate {
         let parent: MapView
-        
         
         init(_ parent: MapView) {
             self.parent = parent
@@ -56,9 +59,8 @@ struct MapView: UIViewRepresentable {
             let currentZoomLevel = mapView.zoomLevel
             print("Zoom level changed to: \(currentZoomLevel)")
             
-            // You can also check for specific zoom level thresholds
-            if currentZoomLevel > 16 {
-                // Show detailed POIs
+            // Fetch POIs when zoom level is high enough
+            if currentZoomLevel > MapConfiguration.poiZoomThreshold {
                 let bounds = MapBounds(
                     south: mapView.visibleCoordinateBounds.sw.latitude,
                     west: mapView.visibleCoordinateBounds.sw.longitude,
@@ -66,58 +68,19 @@ struct MapView: UIViewRepresentable {
                     east: mapView.visibleCoordinateBounds.ne.longitude
                 )
                 Task{
-                    print("OSMPOI: Fetching POIs with bounds \(bounds)")
-                    await parent.viewModel.fetchPOI(mapBounds: bounds)
+                    await parent.viewModel.fetchPOIs(mapBounds: bounds)
                 }
-                
-            } else if currentZoomLevel < 10 {
-                print("Low zoom level")
+               
+            } else if currentZoomLevel < MapConfiguration.lowZoomThreshold {
+                print("Low zoom level - hiding detailed POIs")
+                // Optionally clear POIs at low zoom levels
+                // parent.viewModel.clearPOIs()
             }
         }
         
-        
-    }
-    
-    
-    private func createOpenStreetMapStyle() -> URL? {
-        // if we used regular we based URLs I get a blank black screen with MapLibre logo. Therefore:
-        // we create a temp fileand use the filesystem url instead of web based urls according to this discussion https://github.com/maplibre/maplibre-native/discussions/1411
-        let styleJSON = """
-        {
-            "version": 8,
-            "name": "OpenStreetMap Style",
-            "glyphs": "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
-            "sources": {
-                "osm": {
-                    "type": "raster",
-                    "tiles": ["https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                    "tileSize": 256,
-                    "attribution": "© OpenStreetMap Contributors",
-                    "maxzoom": 19
-                }
-            },
-            "layers": [
-                {
-                    "id": "osm",
-                    "type": "raster",
-                    "source": "osm"
-                }
-            ]
-        }
-        """
-        
-        do {
-            // Create temporary file URL
-            let temporaryDirectory = FileManager.default.temporaryDirectory
-            let temporaryFileURL = temporaryDirectory.appendingPathComponent("osm_style.json")
-            
-            // Write JSON to temporary file
-            try styleJSON.write(to: temporaryFileURL, atomically: true, encoding: .utf8)
-            
-            return temporaryFileURL
-        } catch {
-            print("Error creating custom style: \(error)")
-            return nil
+        private func mapView(_ mapView: MLNMapView, didFailToLoadMapWithError error: Error) {
+            print("Map failed to load: \(error.localizedDescription)")
+            // Could forward this error to the view model
         }
     }
 }

@@ -125,7 +125,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     @MainActor
-    func fetchPOI(mapBounds: MapBounds) async {
+    func fetchPOIs(mapBounds: MapBounds) async {
         do {
             OSMPOIs = try await OverpassAPI.fetchMapPOIs(mapBounds: mapBounds)
             dump("OSMPOI data: \(OSMPOIs)")

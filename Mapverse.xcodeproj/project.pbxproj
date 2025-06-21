@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0F0899D72E06B07500758007 /* Turf in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0899D62E06B07500758007 /* Turf */; };
 		0F10BBA12DFFEE3E0034CC40 /* MapLibre in Frameworks */ = {isa = PBXBuildFile; productRef = 0F10BBA02DFFEE3E0034CC40 /* MapLibre */; };
 		0FA5CCA02DE0A7C6006D63D9 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 0FA5CC9F2DE0A7C6006D63D9 /* KeychainSwift */; };
 /* End PBXBuildFile section */
@@ -41,6 +42,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0F0899D72E06B07500758007 /* Turf in Frameworks */,
 				0F10BBA12DFFEE3E0034CC40 /* MapLibre in Frameworks */,
 				0FA5CCA02DE0A7C6006D63D9 /* KeychainSwift in Frameworks */,
 			);
@@ -87,6 +89,7 @@
 			packageProductDependencies = (
 				0FA5CC9F2DE0A7C6006D63D9 /* KeychainSwift */,
 				0F10BBA02DFFEE3E0034CC40 /* MapLibre */,
+				0F0899D62E06B07500758007 /* Turf */,
 			);
 			productName = Mapverse;
 			productReference = 0F0828732D9EAC9C00E1A57C /* Mapverse.app */;
@@ -119,7 +122,7 @@
 			packageReferences = (
 				0FA5CC9E2DE0A7C6006D63D9 /* XCRemoteSwiftPackageReference "keychain-swift" */,
 				0F10BB9F2DFFEE3E0034CC40 /* XCRemoteSwiftPackageReference "maplibre-gl-native-distribution" */,
-				0F0899782E05824D00758007 /* XCRemoteSwiftPackageReference "turf-swift" */,
+				0F0899D52E06B07500758007 /* XCRemoteSwiftPackageReference "turf-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0F0828742D9EAC9C00E1A57C /* Products */;
@@ -365,7 +368,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		0F0899782E05824D00758007 /* XCRemoteSwiftPackageReference "turf-swift" */ = {
+		0F0899D52E06B07500758007 /* XCRemoteSwiftPackageReference "turf-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mapbox/turf-swift";
 			requirement = {
@@ -392,6 +395,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		0F0899D62E06B07500758007 /* Turf */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0F0899D52E06B07500758007 /* XCRemoteSwiftPackageReference "turf-swift" */;
+			productName = Turf;
+		};
 		0F10BBA02DFFEE3E0034CC40 /* MapLibre */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0F10BB9F2DFFEE3E0034CC40 /* XCRemoteSwiftPackageReference "maplibre-gl-native-distribution" */;
