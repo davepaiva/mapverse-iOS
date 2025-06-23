@@ -9,12 +9,18 @@ import Foundation
 import MapLibre
 import CoreLocation
 import SwiftUI
+import GEOSwift
+
+struct CachedPOIData {
+    let bounds: MapBounds
+    let POIs: [OSMPOI]
+}
 
 class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
-//    @Published var userLocation: [CLLocation]? = []
-    @Published var OSMPOIs: [OSMPOI] = [] {
+    @Published var cachedOSMPOIs: [CachedPOIData] = []
+    @Published var mapPOIs: [OSMPOI] = [] {
         didSet{
-            updatePOILayer(with: OSMPOIs)
+            updatePOILayer(with: mapPOIs)
         }
     }
     
@@ -28,7 +34,6 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     
     func checkIfLocationServicesEnabled() {
-        // TODO FIX threading warning
         if CLLocationManager.locationServicesEnabled() {
             locationManager = CLLocationManager()
             locationManager!.delegate = self
@@ -125,14 +130,105 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     @MainActor
-    func fetchPOIs(mapBounds: MapBounds) async {
-        do {
-            OSMPOIs = try await OverpassAPI.fetchMapPOIs(mapBounds: mapBounds)
-            dump("OSMPOI data: \(OSMPOIs)")
-        }catch {
-            print("OSMPOI TODO show error to user: \(error.localizedDescription)")
+    func fetchPOIs(mapBounds: MapBounds, currentZoomLevel: Double) async {
+        if currentZoomLevel <= MapConfiguration.poiZoomThreshold {
+            mapPOIs = []
+            return
+        }
+        let cachedData = getCacheWithinBounds(mapBounds)
+        guard let cachedData, !cachedData.isEmpty else {
+            // no cached data, fetch from server
+            print("no cached data, fetch from server")
+            do {
+                mapPOIs = try await OverpassAPI.fetchMapPOIs(mapBounds: mapBounds)
+                cachedOSMPOIs.append(CachedPOIData(bounds: mapBounds, POIs: mapPOIs))
+                dump("OSMPOI data: \(mapPOIs)")
+            }catch {
+                print("OSMPOI TODO show error to user: \(error.localizedDescription)")
+            }
+            return
+        }
+        print("using cached data")
+        mapPOIs = cachedData
+    }
+    
+    func boundsToPolygon(_ bounds: MapBounds) throws -> Geometry {
+        do{
+            let coordinates = [
+                   CLLocationCoordinate2D(latitude: bounds.south, longitude: bounds.west),
+                   CLLocationCoordinate2D(latitude: bounds.south, longitude: bounds.east),
+                   CLLocationCoordinate2D(latitude: bounds.north, longitude: bounds.east),
+                   CLLocationCoordinate2D(latitude: bounds.north, longitude: bounds.west),
+                   CLLocationCoordinate2D(latitude: bounds.south, longitude: bounds.west)
+               ]
+            var pairs = coordinates.map{String("\($0.longitude) \($0.latitude)")}
+            pairs.append(pairs[0])
+            let joined = pairs.joined(separator: ", ")
+            return try Geometry(wkt: "POLYGON ((\(joined)))")
+        }catch{
+            print("err while conevrting bounds to geometry: \(error)")
+            throw(error)
         }
        
+    }
+    
+    func getCacheWithinBounds(_ mapBounds: MapBounds) -> [OSMPOI]? {
+        guard let currentPolygon = try? boundsToPolygon(mapBounds) else { return  nil}
+        for cache in cachedOSMPOIs{
+            guard let cachedPolygon = try? boundsToPolygon(cache.bounds) else { continue }
+            if ((try? currentPolygon.isWithin(cachedPolygon)) != nil){
+                return filterCachedPOIs(data: cache, within: mapBounds)
+            }
+        }
+        return nil
+    }
+    
+    func filterCachedPOIs(data cachedData: CachedPOIData ,within currentMapBounds: MapBounds) -> [OSMPOI]{
+        let poisResult = cachedData.POIs.filter {
+            guard let lat =  $0.center?.lat ?? $0.lat,
+                  let lon =  $0.center?.lon ?? $0.lon else{
+                return false
+            }
+    
+            return lat >= currentMapBounds.south &&
+            lat <= currentMapBounds.north &&
+            lon >= currentMapBounds.west &&
+            lon <= currentMapBounds.east
+            
+        }
+        
+        return poisResult
+    }
+    
+    func getUnCoveredAreas(within mapBounds: MapBounds) -> Geometry? {
+        guard let currentPolygon = try? boundsToPolygon(mapBounds) else { return nil}
+        
+        if(cachedOSMPOIs.isEmpty){
+            return currentPolygon
+        }
+        
+        let cachedPolygon = cachedOSMPOIs.compactMap{
+            try? boundsToPolygon($0.bounds)
+        }
+        
+        guard !cachedPolygon.isEmpty else {
+              return currentPolygon
+          }
+        
+        var unionCached = cachedPolygon[0]
+        
+        do{
+            for  i in 1..<cachedPolygon.count {
+                unionCached = try unionCached.union(with: cachedPolygon[i])
+            }
+            let uncoveredPolygon = try currentPolygon.difference(with: unionCached)
+            print("uncovered polygons: \(uncoveredPolygon)")
+            return uncoveredPolygon
+            
+        }catch{
+            print("error in finding union of cached polygons: \(error)")
+            return currentPolygon
+        }
     }
     
 }

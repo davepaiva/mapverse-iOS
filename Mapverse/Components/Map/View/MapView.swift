@@ -50,6 +50,8 @@ struct MapView: UIViewRepresentable {
 extension MapView {
     class Coordinator: NSObject, MLNMapViewDelegate {
         let parent: MapView
+        private var lastZoomLevel: Double = 0
+        private var lastCenterCoordinate: CLLocationCoordinate2D?
         
         init(_ parent: MapView) {
             self.parent = parent
@@ -57,25 +59,38 @@ extension MapView {
         
         func mapView(_ mapView: MLNMapView, regionDidChangeWith reason: MLNCameraChangeReason, animated: Bool) {
             let currentZoomLevel = mapView.zoomLevel
-            print("Zoom level changed to: \(currentZoomLevel)")
+            let currentCenterCoordinate = mapView.centerCoordinate
+            print("Region changed - Zoom: \(currentZoomLevel), Center: \(currentCenterCoordinate)")
+            let zoomChanged = abs(currentZoomLevel - lastZoomLevel) > 0.1
+            let centerChanged = hasCenterChangedSignificantly(from: lastCenterCoordinate, to: currentCenterCoordinate)
             
-            // Fetch POIs when zoom level is high enough
-            if currentZoomLevel > MapConfiguration.poiZoomThreshold {
-                let bounds = MapBounds(
-                    south: mapView.visibleCoordinateBounds.sw.latitude,
-                    west: mapView.visibleCoordinateBounds.sw.longitude,
-                    north: mapView.visibleCoordinateBounds.ne.latitude,
-                    east: mapView.visibleCoordinateBounds.ne.longitude
-                )
-                Task{
-                    await parent.viewModel.fetchPOIs(mapBounds: bounds)
-                }
-               
-            } else if currentZoomLevel < MapConfiguration.lowZoomThreshold {
-                print("Low zoom level - hiding detailed POIs")
-                // Optionally clear POIs at low zoom levels
-                // parent.viewModel.clearPOIs()
+            guard zoomChanged || centerChanged else { return }
+
+            lastZoomLevel = currentZoomLevel
+            lastCenterCoordinate = currentCenterCoordinate
+
+            let bounds = MapBounds(
+                south: mapView.visibleCoordinateBounds.sw.latitude,
+                west: mapView.visibleCoordinateBounds.sw.longitude,
+                north: mapView.visibleCoordinateBounds.ne.latitude,
+                east: mapView.visibleCoordinateBounds.ne.longitude
+            )
+            Task{
+                await parent.viewModel.fetchPOIs(mapBounds: bounds, currentZoomLevel: currentZoomLevel)
             }
+        }
+
+         private func hasCenterChangedSignificantly(from lastCenter: CLLocationCoordinate2D?, to currentCenter: CLLocationCoordinate2D) -> Bool {
+            guard let lastCenter = lastCenter else { return true } // First time, always update
+            
+            // Calculate distance moved (you can adjust this threshold based on your needs)
+            let latDiff = abs(currentCenter.latitude - lastCenter.latitude)
+            let lonDiff = abs(currentCenter.longitude - lastCenter.longitude)
+            
+            // Threshold for significant movement (roughly 100 meters at equator)
+            let threshold = 0.001
+            
+            return latDiff > threshold || lonDiff > threshold
         }
         
         private func mapView(_ mapView: MLNMapView, didFailToLoadMapWithError error: Error) {
