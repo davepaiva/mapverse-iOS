@@ -17,6 +17,7 @@ struct CachedPOIData {
 }
 
 class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
+    @Published var isFetchingData: Bool = false
     @Published var cachedOSMPOIs: [CachedPOIData] = []
     @Published var mapPOIs: [OSMPOI] = [] {
         didSet{
@@ -140,12 +141,14 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             // no cached data, fetch from server
             print("no cached data, fetch from server")
             do {
+                isFetchingData = true
                 mapPOIs = try await OverpassAPI.fetchMapPOIs(mapBounds: mapBounds)
                 cachedOSMPOIs.append(CachedPOIData(bounds: mapBounds, POIs: mapPOIs))
                 dump("OSMPOI data: \(mapPOIs)")
             }catch {
                 print("OSMPOI TODO show error to user: \(error.localizedDescription)")
             }
+            isFetchingData = false
             return
         }
         print("using cached data")

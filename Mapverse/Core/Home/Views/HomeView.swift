@@ -9,9 +9,7 @@ import SwiftUI
 
 struct HomeView: View {
     var body: some View {
-        MapView()
-            .edgesIgnoringSafeArea(.all)
-            
+        MapContainerView()
     }
 }
 

@@ -3,7 +3,7 @@ import MapLibre
 import CoreLocation
 
 struct MapView: UIViewRepresentable {
-    @StateObject private var viewModel =  MapViewModel()
+    @StateObject var viewModel: MapViewModel
     
     
     func makeUIView(context: Context) -> MLNMapView {
