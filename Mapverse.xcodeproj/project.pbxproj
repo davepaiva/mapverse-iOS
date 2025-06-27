@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0F0899D72E06B07500758007 /* Turf in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0899D62E06B07500758007 /* Turf */; };
 		0F0899DF2E06EA6B00758007 /* GEOSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0899DE2E06EA6B00758007 /* GEOSwift */; };
 		0F10BBA12DFFEE3E0034CC40 /* MapLibre in Frameworks */ = {isa = PBXBuildFile; productRef = 0F10BBA02DFFEE3E0034CC40 /* MapLibre */; };
 		0FA5CCA02DE0A7C6006D63D9 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 0FA5CC9F2DE0A7C6006D63D9 /* KeychainSwift */; };
@@ -44,7 +43,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0F0899DF2E06EA6B00758007 /* GEOSwift in Frameworks */,
-				0F0899D72E06B07500758007 /* Turf in Frameworks */,
 				0F10BBA12DFFEE3E0034CC40 /* MapLibre in Frameworks */,
 				0FA5CCA02DE0A7C6006D63D9 /* KeychainSwift in Frameworks */,
 			);
@@ -91,7 +89,6 @@
 			packageProductDependencies = (
 				0FA5CC9F2DE0A7C6006D63D9 /* KeychainSwift */,
 				0F10BBA02DFFEE3E0034CC40 /* MapLibre */,
-				0F0899D62E06B07500758007 /* Turf */,
 				0F0899DE2E06EA6B00758007 /* GEOSwift */,
 			);
 			productName = Mapverse;
@@ -125,7 +122,6 @@
 			packageReferences = (
 				0FA5CC9E2DE0A7C6006D63D9 /* XCRemoteSwiftPackageReference "keychain-swift" */,
 				0F10BB9F2DFFEE3E0034CC40 /* XCRemoteSwiftPackageReference "maplibre-gl-native-distribution" */,
-				0F0899D52E06B07500758007 /* XCRemoteSwiftPackageReference "turf-swift" */,
 				0F0899DD2E06EA6B00758007 /* XCRemoteSwiftPackageReference "GEOSwift" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -372,14 +368,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		0F0899D52E06B07500758007 /* XCRemoteSwiftPackageReference "turf-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/mapbox/turf-swift";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 		0F0899DD2E06EA6B00758007 /* XCRemoteSwiftPackageReference "GEOSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/GEOSwift/GEOSwift";
@@ -407,11 +395,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		0F0899D62E06B07500758007 /* Turf */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0F0899D52E06B07500758007 /* XCRemoteSwiftPackageReference "turf-swift" */;
-			productName = Turf;
-		};
 		0F0899DE2E06EA6B00758007 /* GEOSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0F0899DD2E06EA6B00758007 /* XCRemoteSwiftPackageReference "GEOSwift" */;

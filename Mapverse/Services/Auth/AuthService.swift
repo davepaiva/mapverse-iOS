@@ -80,7 +80,7 @@ class AuthService {
     }
     
     func exchangeCodeForToken(_ code: String) async throws {
-        let response: ExchangeCodeForAccessTokenResponseBody = try await OSMNetworkService.shared.post(endpoint: "/oauth2/token", body: ExchangeCodeForAccessTokenRequestBody(code: code), requestContentType: .URLEncoded)
+        let response: ExchangeCodeForAccessTokenResponseBody = try await OSMAuthNetworkService.shared.post(endpoint: "/oauth2/token", body: ExchangeCodeForAccessTokenRequestBody(code: code), requestContentType: .URLEncoded)
         guard let token  = response.accessToken else {
             throw NetworkError.customError(message: "OSM access token could not be retreived")
         }

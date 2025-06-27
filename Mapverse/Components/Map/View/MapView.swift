@@ -11,6 +11,8 @@ struct MapView: UIViewRepresentable {
         configureMapView(mapView)
         viewModel.setMapView(mapView)
         mapView.delegate = context.coordinator
+        let tapGesture = UITapGestureRecognizer(target: context.coordinator, action: #selector(context.coordinator.handleMapTap(_:)))
+        mapView.addGestureRecognizer(tapGesture)
         return mapView
     }
     
@@ -96,6 +98,30 @@ extension MapView {
         private func mapView(_ mapView: MLNMapView, didFailToLoadMapWithError error: Error) {
             print("Map failed to load: \(error.localizedDescription)")
             // Could forward this error to the view model
+        }
+        
+        @objc func handleMapTap(_ gesture: UITapGestureRecognizer){
+            guard let mapView = gesture.view as? MLNMapView else { return }
+            
+            let tapPoint = gesture.location(in: mapView)
+            let coordinate = mapView.convert(tapPoint, toCoordinateFrom: mapView)
+            
+            let layerIdentifiers = [parent.viewModel.poiLayerIdentifier]
+            let visibleFeatures = mapView.visibleFeatures(at: tapPoint, styleLayerIdentifiers: Set(layerIdentifiers))
+            
+            if !visibleFeatures.isEmpty {
+                guard let rawAttributes = visibleFeatures.first?.attributes else { return }
+                guard let coords = visibleFeatures.first?.coordinate else { return }
+                
+                guard let featureAttributes = MapFeatureAttributes(from: rawAttributes) else { return }
+                
+                Task{
+                    await parent.viewModel.handlePOITap(poiId: featureAttributes.poiId, poiType: featureAttributes.poiType, coordinate: coords, tags: featureAttributes.tags)
+                }
+               
+            }
+            
+            
         }
     }
 }

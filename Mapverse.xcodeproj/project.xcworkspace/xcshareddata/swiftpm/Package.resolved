@@ -1,5 +1,5 @@
 {
-  "originHash" : "da5c31cb675f258cc97699a163343a8d2e56d8d08fcb0db859df9dec72bf3b04",
+  "originHash" : "2d3efd2e31e66151dd947879aaebbb20347374d6d4c6a32a4e8a40f0f6f245a0",
   "pins" : [
     {
       "identity" : "geos",
@@ -35,15 +35,6 @@
       "state" : {
         "revision" : "0421942023155bd1c8074438945fbef3a3472a2c",
         "version" : "6.15.0"
-      }
-    },
-    {
-      "identity" : "turf-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/mapbox/turf-swift",
-      "state" : {
-        "branch" : "main",
-        "revision" : "84db5899af1beaa506aafcb006fd7759e7d5647d"
       }
     }
   ],

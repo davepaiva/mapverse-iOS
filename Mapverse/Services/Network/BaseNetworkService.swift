@@ -102,19 +102,19 @@ class BaseNetworkService {
     }
     
     
-    private var decoder: JSONDecoder {
+    var decoder: JSONDecoder {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
     }
     
-    private var encoder: JSONEncoder {
+    var encoder: JSONEncoder {
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
         return encoder
     }
 
-    private func getDefaultHeaders() -> [String: String] {
+    func getDefaultHeaders() -> [String: String] {
         return [
             "Accept": "*/*",
             "Accept-Language": "en-US,en;q=0.9"
@@ -123,7 +123,7 @@ class BaseNetworkService {
 
     func get<T: Decodable>(
         endpoint: String,
-        parameters: RequestParameters
+        parameters: RequestParameters? = nil
     ) async throws -> T {
         return try await performRequest(endpoint: endpoint, method: .GET, parameters: parameters)
     }
@@ -152,6 +152,7 @@ class BaseNetworkService {
         guard let httpResponse = response as? HTTPURLResponse else {
             throw NetworkError.invalidResponse
         }
+        print("statusCode: \(httpResponse.statusCode)")
         
         guard (200...299).contains(httpResponse.statusCode) else {
            let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
@@ -161,7 +162,7 @@ class BaseNetworkService {
     
     
     // Mostly used for GET requests
-    private func performRequest<T: Decodable>(endpoint: String, method: HTTPMethod, parameters: RequestParameters) async throws -> T {
+    private func performRequest<T: Decodable>(endpoint: String, method: HTTPMethod, parameters: RequestParameters? = nil) async throws -> T {
         let url = try buildAPIEndpoint(endpoint: endpoint, parameters: parameters)
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
@@ -176,7 +177,19 @@ class BaseNetworkService {
             try checkForAPIErrors(response: response, data: data)
             return try decoder.decode(T.self, from: data)
             
-        }catch _ as DecodingError{
+        }catch let error as DecodingError{
+            switch error {
+            case .typeMismatch(let type, let context):
+                print("Type mismatch: Expected \(type), at path: \(context)")
+            case .valueNotFound(let type, let context):
+                print("Value not found: \(type), at path: \(context)")
+            case .keyNotFound(let key, let context):
+                print("Key not found: \(key.stringValue), at path: \(context)")
+            case .dataCorrupted(let context):
+                print("Data corrupted at path: \(context)")
+            @unknown default:
+                print("Unknown decoding error: \(error)")
+            }
             throw NetworkError.decodingError
         }catch let error as NetworkError{
             throw error

@@ -11,13 +11,14 @@ import CoreLocation
 import SwiftUI
 import GEOSwift
 
-struct CachedPOIData {
-    let bounds: MapBounds
-    let POIs: [OSMPOI]
-}
+
+
+
 
 class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
-    @Published var isFetchingData: Bool = false
+    @Published var isFetchingPOIs: Bool = false
+    @Published var isFetchingNodeInfo = false
+    @Published var showNodeInfoBottomSheet = false
     @Published var cachedOSMPOIs: [CachedPOIData] = []
     @Published var mapPOIs: [OSMPOI] = [] {
         didSet{
@@ -30,8 +31,8 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     private var mapView: MLNMapView?
     
     // Source and layer identifiers
-    private let poiSourceIdentifier = "poi-source"
-    private let poiLayerIdentifier = "poi-layer"
+    let poiSourceIdentifier = "poi-source"
+    let poiLayerIdentifier = "poi-layer"
     
     
     func checkIfLocationServicesEnabled() {
@@ -96,6 +97,12 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             
             mapView.style?.setImage(iconImage, forName: iconId)
             feature.attributes["iconId"] = iconId
+            // convert them to types that object C can recognise
+            feature.attributes["poiId"] = NSNumber(value: poi.id)
+            feature.attributes["poiType"] = poi.type.rawValue
+            if let tags = poi.tags, !tags.isEmpty {
+                feature.attributes["tags"] = NSDictionary(dictionary: tags)
+            }
             features.append(feature)
         }
         
@@ -141,14 +148,14 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             // no cached data, fetch from server
             print("no cached data, fetch from server")
             do {
-                isFetchingData = true
+                isFetchingPOIs = true
                 mapPOIs = try await OverpassAPI.fetchMapPOIs(mapBounds: mapBounds)
                 cachedOSMPOIs.append(CachedPOIData(bounds: mapBounds, POIs: mapPOIs))
                 dump("OSMPOI data: \(mapPOIs)")
             }catch {
                 print("OSMPOI TODO show error to user: \(error.localizedDescription)")
             }
-            isFetchingData = false
+            isFetchingPOIs = false
             return
         }
         print("using cached data")
@@ -232,6 +239,24 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             print("error in finding union of cached polygons: \(error)")
             return currentPolygon
         }
+    }
+    
+    @MainActor
+    func handlePOITap(poiId: Int64, poiType: OSMNodeType, coordinate: CLLocationCoordinate2D, tags: [String: String]) async {
+        showNodeInfoBottomSheet = true
+        await fetchPOIInfo(poiId: poiId, poiType: poiType)
+    }
+    
+    @MainActor
+    func fetchPOIInfo(poiId: Int64, poiType: OSMNodeType) async {
+        isFetchingNodeInfo = true
+        do{
+            let response:OSMPOIInfoResponse = try await OSMNetworkService.shared.get(endpoint: "\(poiType.rawValue)/\(poiId)")
+            print("OSMInfo: \(response)")
+        }catch{
+            print("Error in fetching POI info: \(error)")
+        }
+        
     }
     
 }

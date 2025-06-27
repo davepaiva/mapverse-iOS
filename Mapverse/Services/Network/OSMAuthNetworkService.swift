@@ -7,12 +7,12 @@
 
 import Foundation
 
-class OSMNetworkService: BaseNetworkService {
+class OSMAuthNetworkService: BaseNetworkService {
     
-    static let shared = OSMNetworkService()
+    static let shared = OSMAuthNetworkService()
     
     private init(){
-        super.init(baseURL: "https://api.openstreetmap.org/api/0.6")
+        super.init(baseURL: GetEnvVariable.osmBaseUrl)
     }
     
     override var decoder: JSONDecoder {

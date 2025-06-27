@@ -11,7 +11,7 @@ struct MapContainerView: View {
             
             // Position the loading indicator at the top
             VStack {
-                if viewModel.isFetchingData {
+                if viewModel.isFetchingPOIs {
                     HStack(spacing: 8) {
                         ProgressView()
                             .scaleEffect(0.8)
