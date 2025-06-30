@@ -20,6 +20,8 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var isFetchingNodeInfo = false
     @Published var showNodeInfoBottomSheet = false
     @Published var cachedOSMPOIs: [CachedPOIData] = []
+    @Published var selectedPOIAttributes: MapFeatureAttributes? = nil
+    @Published var selectedPOIOSMInfo: OSMPOIInfoResponse? = nil
     @Published var mapPOIs: [OSMPOI] = [] {
         didSet{
             updatePOILayer(with: mapPOIs)
@@ -241,17 +243,27 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
     }
     
+    func onInfoBottomSheetDismissed() {
+        selectedPOIOSMInfo = nil
+        showNodeInfoBottomSheet = false
+        selectedPOIAttributes = nil
+    }
+    
     @MainActor
-    func handlePOITap(poiId: Int64, poiType: OSMNodeType, coordinate: CLLocationCoordinate2D, tags: [String: String]) async {
+    func handlePOITap(poiId: Int64, coordinate: CLLocationCoordinate2D, attributes: MapFeatureAttributes) async {
         showNodeInfoBottomSheet = true
-        await fetchPOIInfo(poiId: poiId, poiType: poiType)
+        selectedPOIAttributes = attributes
+        await fetchPOIInfo(poiId: poiId, poiType: attributes.poiType)
+        print("Tapped at \(coordinate)")
     }
     
     @MainActor
     func fetchPOIInfo(poiId: Int64, poiType: OSMNodeType) async {
         isFetchingNodeInfo = true
         do{
+            print("fetching poi info for \(poiType.rawValue)/\(poiId)")
             let response:OSMPOIInfoResponse = try await OSMNetworkService.shared.get(endpoint: "\(poiType.rawValue)/\(poiId)")
+            selectedPOIOSMInfo = response
             print("OSMInfo: \(response)")
         }catch{
             print("Error in fetching POI info: \(error)")

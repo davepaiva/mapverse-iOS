@@ -116,7 +116,7 @@ extension MapView {
                 guard let featureAttributes = MapFeatureAttributes(from: rawAttributes) else { return }
                 
                 Task{
-                    await parent.viewModel.handlePOITap(poiId: featureAttributes.poiId, poiType: featureAttributes.poiType, coordinate: coords, tags: featureAttributes.tags)
+                    await parent.viewModel.handlePOITap(poiId: featureAttributes.poiId, coordinate: coords, attributes: featureAttributes)
                 }
                
             }

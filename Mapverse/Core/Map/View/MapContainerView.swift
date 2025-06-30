@@ -29,7 +29,14 @@ struct MapContainerView: View {
                 }
                 Spacer()
             }
+        }.sheet(isPresented: $viewModel.showNodeInfoBottomSheet, onDismiss: viewModel.onInfoBottomSheetDismissed){
+            NodeInfoBottomSheet(
+                showNodeInfoBottomSheet: $viewModel.showNodeInfoBottomSheet,
+                selectedPOIAttributes: viewModel.selectedPOIAttributes ?? nil,
+                selectedPOIOSMInfo: viewModel.selectedPOIOSMInfo
+            )
         }
+        
     }
 }
 

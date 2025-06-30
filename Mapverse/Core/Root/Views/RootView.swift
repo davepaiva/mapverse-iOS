@@ -15,7 +15,7 @@ struct RootView: View {
             if viewModel.userAccessToken?.isEmpty ?? true  {
                 LoginView()
             }else{
-                HomeView()
+                MapContainerView()
             }
         }
     }
