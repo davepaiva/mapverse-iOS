@@ -110,16 +110,15 @@ struct MetadataCard: View {
     let title: String
     let value: String
     
+    private func onLongPress() {
+        let pasteboard = UIPasteboard.general
+        pasteboard.string = value
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.subheadline)
-                .foregroundColor(.gray)
-            Text(value)
-                .font(.body)
+            ExpandableCard(title: title, value: value, onLongPress: onLongPress)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
         .background(Color.gray.opacity(0.1))
         .cornerRadius(8)
     }
