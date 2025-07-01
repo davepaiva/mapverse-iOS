@@ -20,7 +20,7 @@ struct NodeInfoBottomSheet: View {
     private var formattedPOIInfo: String {
         let type = selectedPOIAttributes?.poiType.rawValue
         let id = selectedPOIAttributes?.poiId
-        return "\(type ?? "") #\(String(describing: id))"
+        return "\(type ?? "") #\(id?.description ?? "Unknown")"
     }
     
     var body: some View {
